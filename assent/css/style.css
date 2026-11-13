@@ -1,4 +1,4 @@
- 
+
 :root {
   --brand: hsl(20, 30%, 35%);
   --brand-dark: hsl(20, 30%, 27%);
@@ -7,10 +7,9 @@
   --card-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
   --card-shadow-hover: 0 10px 24px rgba(0, 0, 0, 0.12);
 }
- 
+
 html { scroll-behavior: smooth; }
- 
- 
+
 /* ---------- Navbar ---------- */
 .navbar-atelier {
   background-color: var(--brand-darkest);
@@ -22,7 +21,38 @@ html { scroll-behavior: smooth; }
 .navbar-atelier .nav-link {
   font-size: .875rem;
 }
- 
+
+/* ---------- Bottone tema chiaro / scuro ---------- */
+.theme-toggle {
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-color: rgba(255, 255, 255, .35);
+  line-height: 1;
+}
+
+/* Transizione morbida al cambio tema */
+body,
+.card,
+.form-control,
+.form-select,
+section {
+  transition: background-color .3s ease, color .3s ease, border-color .3s ease;
+}
+
+/* ---------- Tema scuro ---------- */
+/* .bg-light ha un colore fisso: in modalità scura lo scuriamo noi */
+[data-bs-theme="dark"] .bg-light {
+  background-color: var(--bs-tertiary-bg) !important;
+}
+[data-bs-theme="dark"] .service-card {
+  --card-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  --card-shadow-hover: 0 10px 24px rgba(0, 0, 0, 0.5);
+}
+
 /* ---------- Hero ---------- */
 .hero {
   background-color: var(--brand);
@@ -34,9 +64,8 @@ html { scroll-behavior: smooth; }
   font-size: clamp(1.5rem, 3vw, 2rem);
   font-weight: 700;
 }
- 
 
-/*---------- Bottoni ------ */
+/* ---------- Bottoni ---------- */
 .btn-brand {
   --bs-btn-color: #fff;
   --bs-btn-bg: var(--brand);
@@ -52,63 +81,64 @@ html { scroll-behavior: smooth; }
   --bs-btn-focus-shadow-rgb: 115, 82, 62;
 }
 
-
-/*---------- Sezioni ------ */
-.section-title{
-    font-weight: 700;
-    font-size: 1.5rem;
+/* Hamburger: niente bordo spesso dopo il click col mouse, resta solo per chi naviga con la tastiera (Tab) */
+.navbar-toggler:focus:not(:focus-visible) {
+  box-shadow: none;
 }
 
-/*---------- Card Servizi ------ */
-.service-card{
-    border: 0;
-    box-shadow: var(--card-shadow);
-    transition: trasform .25s ease, box-shadow .25s ease;
+/* ---------- Sezioni ---------- */
+.section-title {
+  font-weight: 700;
+  font-size: 1.5rem;
 }
 
-.service-card:hover{
-    transform: translateY(-4px);
-    box-shadow: var(--card-shadow-hover);
+/* ---------- Card servizi ---------- */
+.service-card {
+  border: 0;
+  box-shadow: var(--card-shadow);
+  transition: transform .25s ease, box-shadow .25s ease;
+}
+.service-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--card-shadow-hover);
+}
+.service-card .icon {
+  font-size: 2rem;
+  line-height: 1;
+}
+.service-card .card-title {
+  font-weight: 700;
+  font-size: 1.1rem;
 }
 
-.service-card .icon{
-    font-size: 2rem;
-    line-height: 1;
-}
-
-.service-card .card-title{
-    font-weight: 700;
-    font-size: 1.1rem;
-}
-
-/*---------- Form ------ */
-
+/* ---------- Form: campi selezionati ---------- */
 .form-control:focus,
-.form-select:focus {
-    border-color: var(--brand);
-    box-shadow: 0 0 0 .25rem hsla(20, 30%, 35%, .25);
+.form-select:focus,
+.form-check-input:focus {
+  border-color: var(--brand);
+  box-shadow: 0 0 0 .25rem hsla(20, 30%, 35%, .25);
+}
+.form-check-input:checked {
+  background-color: var(--brand);
+  border-color: var(--brand);
 }
 
-/*---------- Modale ------ */
-
-.modal-atelier .modal-header{
-    background-color: var(--brand);
-    color: #fff;
-    border-bottom: 0;
+/* ---------- Modale ---------- */
+.modal-atelier .modal-header {
+  background-color: var(--brand);
+  color: #fff;
+  border-bottom: 0;
+}
+.modal-atelier .modal-title {
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+.modal-atelier .modal-content {
+  border: 0;
+  box-shadow: var(--card-shadow-hover);
 }
 
-.modal-atelier .modal-title{
-    font-weight: 700;
-    font-size: 1.1rem;
-}
-
-.modal-atelier .modal-content{
-    border: 0;
-    box-shadow: var(--card-shadow-hover);
-}
-
-/*---------- Footer ------ */
-
+/* ---------- Footer ---------- */
 .footer-atelier {
   background-color: var(--brand-darkest);
   color: #fff;
