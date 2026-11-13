@@ -34,6 +34,11 @@ html { scroll-behavior: smooth; }
   line-height: 1;
 }
 
+/* Hamburger: niente bordo spesso dopo il click col mouse, resta solo per chi naviga con la tastiera (Tab) */
+.navbar-toggler:focus:not(:focus-visible) {
+  box-shadow: none;
+}
+
 /* Transizione morbida al cambio tema */
 body,
 .card,
@@ -81,11 +86,6 @@ section {
   --bs-btn-focus-shadow-rgb: 115, 82, 62;
 }
 
-/* Hamburger: niente bordo spesso dopo il click col mouse, resta solo per chi naviga con la tastiera (Tab) */
-.navbar-toggler:focus:not(:focus-visible) {
-  box-shadow: none;
-}
-
 /* ---------- Sezioni ---------- */
 .section-title {
   font-weight: 700;
@@ -109,6 +109,77 @@ section {
 .service-card .card-title {
   font-weight: 700;
   font-size: 1.1rem;
+}
+
+/* ---------- Lavori: filtri ---------- */
+.btn-filtro {
+  --bs-btn-color: var(--brand);
+  --bs-btn-border-color: var(--brand);
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-bg: var(--brand);
+  --bs-btn-hover-border-color: var(--brand);
+  --bs-btn-active-color: #fff;
+  --bs-btn-active-bg: var(--brand-dark);
+  --bs-btn-active-border-color: var(--brand-dark);
+  --bs-btn-focus-shadow-rgb: 115, 82, 62;
+}
+
+/* Nel tema scuro il marrone sul fondo scuro si legge poco: lo schiariamo */
+[data-bs-theme="dark"] .btn-filtro {
+  --bs-btn-color: hsl(20, 30%, 72%);
+  --bs-btn-border-color: hsl(20, 30%, 55%);
+}
+
+/* ---------- Lavori: colore per categoria ---------- */
+/* Ogni categoria imposta solo --colore-cat.
+   Il bordo superiore (classi Bootstrap border-top border-4) legge
+   --bs-border-color, quindi basta collegarlo a --colore-cat */
+.colore-categoria {
+  --colore-cat: var(--brand);
+  --bs-border-color: var(--colore-cat);
+}
+.colore-categoria[data-categoria="residenziale"]     { --colore-cat: hsl(20, 30%, 35%); }  /* marrone brand */
+.colore-categoria[data-categoria="interni"]          { --colore-cat: hsl(35, 45%, 42%); }  /* ocra */
+.colore-categoria[data-categoria="ristrutturazione"] { --colore-cat: hsl(5, 35%, 40%); }   /* terracotta */
+.colore-categoria[data-categoria="commerciale"]      { --colore-cat: hsl(200, 18%, 35%); } /* grigio ardesia */
+
+/* Copertina: sfumatura nel colore della categoria */
+.lavoro-cover {
+  background: linear-gradient(135deg,
+              var(--colore-cat),
+              color-mix(in srgb, var(--colore-cat) 55%, #fff));
+}
+
+/* Badge e intestazione della modale nel colore della categoria */
+.badge-categoria {
+  background-color: var(--colore-cat);
+}
+.modal-atelier .colore-categoria .modal-header {
+  background-color: var(--colore-cat);
+}
+
+/* Hover: la card si solleva */
+.lavoro-card {
+  transition: transform .25s ease, box-shadow .25s ease, background-color .3s ease;
+}
+.lavoro-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--card-shadow-hover) !important; /* batte .shadow-sm */
+}
+[data-bs-theme="dark"] .lavoro-card:hover {
+  box-shadow: 0 10px 24px rgba(0, 0, 0, .5) !important;
+}
+
+/* Chi ha disattivato le animazioni nel sistema non vede il movimento */
+@media (prefers-reduced-motion: reduce) {
+  .lavoro-card,
+  .service-card {
+    transition: none;
+  }
+  .lavoro-card:hover,
+  .service-card:hover {
+    transform: none;
+  }
 }
 
 /* ---------- Form: campi selezionati ---------- */

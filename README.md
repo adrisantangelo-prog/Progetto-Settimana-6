@@ -1,5 +1,3 @@
-# Progetto-Settimana-6
-
 # ATELIER - Landing page studio di architettura
 
 Questa repository contiene il codice sorgente della landing page di **Atelier**, uno studio di architettura con sede a Milano. Il sito presenta lo studio e i suoi servizi e permette ai clienti di mettersi in contatto tramite un form o di avviare la richiesta di un nuovo progetto da una finestra modale.
@@ -20,16 +18,21 @@ Questa repository contiene il codice sorgente della landing page di **Atelier**,
 
 ## Funzionalità
 
-Il sito è una pagina unica, responsive, divisa in cinque sezioni:
+Il sito è una pagina unica, responsive, divisa in sei sezioni:
 
 1. **Navbar**: logo, link alle sezioni e bottone per cambiare tema.
 2. **Hero**: titolo, sottotitolo e pulsante **Inizia un progetto**.
 3. **I nostri servizi**: sei card con icona, titolo e descrizione.
-4. **Contattaci**: form di contatto.
-5. **Footer**: indirizzo, link rapidi e contatti.
+4. **I nostri lavori**: portfolio dei progetti, filtrabile per categoria.
+5. **Contattaci**: form di contatto.
+6. **Footer**: indirizzo, link rapidi e contatti.
 
 **Funzionalità principali:**
 
+- **Portfolio generato da un array**: le card dei lavori e le loro modali di dettaglio vengono create da JavaScript a partire dall'array `lavori`.
+- **Filtri per categoria**: Tutti, Residenziale, Interni, Ristrutturazione e Commerciale, con un contatore dei lavori mostrati.
+- **Colore per categoria**: ogni categoria ha un suo colore, usato per il bordo della card, la copertina e il badge.
+- **Richiedi un progetto simile**: dalla modale di un lavoro si apre il form "Inizia un progetto" con il tipo già selezionato.
 - **Tema chiaro / scuro**: un bottone nella navbar cambia il tema della pagina e ricorda la scelta per le visite successive.
 - **Menu responsive**: su smartphone i link si raccolgono in un menu hamburger, che si chiude da solo quando si sceglie una voce.
 - **Modale "Inizia un progetto"**: una finestra con un form dedicato per richiedere un progetto, indicando tipo e budget.
@@ -44,7 +47,7 @@ Il sito è una pagina unica, responsive, divisa in cinque sezioni:
 - **HTML5**: struttura semantica della pagina (`nav`, `header`, `section`, `footer`).
 - **Bootstrap 5.3**: layout, griglia responsive e componenti (navbar, card, form, modale), caricati da CDN.
 - **CSS3**: personalizzazione di Bootstrap con tecniche avanzate (variabili CSS, override delle variabili dei componenti, `clamp()`, transizioni e trasformazioni).
-- **JavaScript (ES6+)**: tema chiaro/scuro, validazione e invio dei form, gestione della modale e del menu mobile.
+- **JavaScript (ES6+)**: generazione delle card dei lavori da un array, filtri, tema chiaro/scuro, validazione e invio dei form, gestione delle modali e del menu mobile.
 
 
 ## Come eseguire il progetto in locale
@@ -62,7 +65,7 @@ Il sito è una pagina unica, responsive, divisa in cinque sezioni:
 
 ```text
 .
-├── index.html     pagina unica con navbar, hero, servizi, form, footer e modale
+├── index.html     pagina unica con navbar, hero, servizi, lavori, form, footer, modale e template
 ├── style.css      stile personalizzato
 ├── script.js      tutte le funzionalità interattive
 └── README.md
@@ -72,11 +75,11 @@ L'ordine di caricamento dei file è importante:
 
 ```html
 <!-- nel <head> -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.9/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="style.css" rel="stylesheet">
 
 <!-- in fondo al <body> -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.9/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="script.js"></script>
 ```
 
@@ -95,6 +98,7 @@ Il progetto separa nettamente i tre livelli:
 
 Lo **stato** della pagina è minimo:
 
+- i **lavori** sono oggetti nell'array `lavori`: la funzione `renderLavori` li trasforma in card e modali, e viene richiamata a ogni cambio di filtro;
 - il **tema** è salvato nell'attributo `data-bs-theme` del tag `<html>` e in `localStorage`, con la chiave `atelier-theme`;
 - la **visibilità** di avvisi, form e messaggi di conferma è gestita aggiungendo e togliendo la classe `d-none` di Bootstrap;
 - lo **stato di validazione** dei form è gestito con la classe `was-validated`.
@@ -144,6 +148,20 @@ Lo **stato** della pagina è minimo:
     </div>
   </section>
 
+  <!-- Lavori -->
+  <section id="lavori">
+    <h2 class="section-title">I nostri lavori</h2>
+    <div id="filtri">
+      <button class="btn btn-filtro active" data-categoria="tutti">Tutti</button>
+      <button class="btn btn-filtro" data-categoria="residenziale">Residenziale</button>
+      <!-- ... interni, ristrutturazione, commerciale -->
+    </div>
+    <p>Mostrati: <span id="contatore">8</span> su <span id="contatore-totale">8</span></p>
+    <div id="lavori-container" class="row">
+      <!-- card generate da JavaScript -->
+    </div>
+  </section>
+
   <!-- Contatti -->
   <section id="contatti" class="bg-light">
     <h2 class="section-title">Contattaci</h2>
@@ -174,6 +192,36 @@ Lo **stato** della pagina è minimo:
       <button id="projectDone">Chiudi</button>
     </div>
   </div>
+
+  <!-- Modali dei lavori, generate da JavaScript -->
+  <div id="modals-container"></div>
+
+  <!-- Modello della card di un lavoro -->
+  <template id="tpl-card">
+    <div class="col-12 col-md-6 col-lg-4">
+      <article class="card lavoro-card colore-categoria border-0 border-top border-4 shadow-sm" data-categoria="...">
+        <div class="ratio ratio-16x9 lavoro-cover"><div><span class="lavoro-icona display-4"></span></div></div>
+        <span class="badge badge-categoria"></span>
+        <h3 class="card-title"></h3>
+        <p class="lavoro-meta"></p>
+        <p class="lavoro-descrizione"></p>
+        <button class="btn btn-brand" data-bs-toggle="modal" data-bs-target="#lavoro-X">Scopri il progetto</button>
+      </article>
+    </div>
+  </template>
+
+  <!-- Modello della modale di dettaglio -->
+  <template id="tpl-modal">
+    <div class="modal modal-atelier" id="lavoro-X">
+      <div class="modal-content colore-categoria" data-categoria="...">
+        <h2 class="modal-title"></h2>
+        <div class="ratio ratio-21x9 lavoro-cover"><div><span class="lavoro-icona display-3"></span></div></div>
+        <dl> <dd class="lavoro-luogo"> <dd class="lavoro-anno"> <dd class="lavoro-mq"> </dl>
+        <p class="lavoro-descrizione"></p>
+        <button class="btn btn-brand lavoro-richiedi">Richiedi un progetto simile</button>
+      </div>
+    </div>
+  </template>
 
   <!-- Modello dello spinner, clonato da script.js -->
   <template id="spinnerTemplate">
@@ -253,13 +301,73 @@ La modale si apre dal pulsante della hero grazie agli attributi di Bootstrap, se
 
 Campi obbligatori: nome, email valida, descrizione e casella della privacy.
 
-### 7. Personalizzazione CSS
+### 7. Sezione "I nostri lavori"
+
+I lavori sono oggetti in un array chiamato `lavori`. Ogni oggetto ha un `id`, un titolo, una categoria, il luogo, l'anno, la superficie in metri quadri, un'icona e una descrizione:
+
+```js
+{
+  id: 3,
+  titolo: 'Cascina Rossa',
+  categoria: 'ristrutturazione',
+  luogo: 'Lodi',
+  anno: 2023,
+  mq: 340,
+  icona: '🧱',
+  descrizione: 'Recupero di una cascina ottocentesca: ...'
+}
+```
+
+L'array `categorieAmmesse` contiene le categorie valide. L'oggetto `tipoProgettoPerCategoria` collega ogni categoria alla voce corrispondente del form "Inizia un progetto".
+
+#### Funzione `formattaMq`
+
+Riceve un numero e lo restituisce formattato all'italiana con l'unità di misura, ad esempio `1200` diventa `"1.200 m²"`, tramite il metodo `toLocaleString`.
+
+#### Funzione `creaCard`
+
+Copia il template `tpl-card` con `cloneNode(true)` e lo riempie con i dati del lavoro tramite `textContent`. Imposta l'attributo `data-categoria`, che decide il colore della card, e collega il bottone **Scopri il progetto** alla sua modale con l'attributo `data-bs-target`.
+
+#### Funzione `creaModale`
+
+Copia il template `tpl-modal` e lo riempie con titolo, icona, categoria, luogo, anno, superficie e descrizione. Assegna alla modale un `id` univoco, ricavato dall'`id` del lavoro (`lavoro-3`), così la modale resta collegata alla card anche dopo un filtro.
+
+#### Funzione `renderLavori`
+
+Riceve una lista di lavori e la disegna:
+- svuota la griglia e il contenitore delle modali con `replaceChildren`;
+- con `forEach` crea, per ogni lavoro, la card e la modale e le aggiunge alla pagina con `appendChild`;
+- controlla che la categoria sia tra quelle ammesse con il metodo `includes`;
+- se la lista è vuota mostra il messaggio "Nessun lavoro in questa categoria";
+- aggiorna il contatore "Mostrati: X su Y".
+
+#### Funzione `filtraLavori`
+
+Riceve una categoria e restituisce i lavori corrispondenti con il metodo `filter`. Con la categoria `"tutti"` restituisce l'array completo.
+
+#### Filtri
+
+I bottoni dei filtri hanno un solo listener, messo sul contenitore `filtri` (*event delegation*). Al click il metodo `closest` trova il bottone cliccato. Lo script evidenzia il filtro attivo con la classe `active` e l'attributo `aria-pressed`, poi chiama `renderLavori` con il risultato di `filtraLavori`.
+
+#### Richiedi un progetto simile
+
+Anche questo bottone usa l'event delegation, sul contenitore `modals-container`. Al click:
+- chiude la modale del lavoro;
+- quando la chiusura è terminata, cioè all'evento `hidden.bs.modal` ascoltato una sola volta con `{ once: true }`, imposta nel campo **Tipo di progetto** la voce collegata alla categoria e apre la modale "Inizia un progetto".
+
+Bootstrap non permette di aprire due modali insieme: per questo la seconda si apre solo dopo che la prima si è chiusa del tutto.
+
+### 8. Personalizzazione CSS
 
 `style.css` usa alcune tecniche avanzate per adattare Bootstrap allo stile di Atelier:
 
 - **Variabili CSS**: i colori del brand e le ombre delle card sono definiti una sola volta in `:root` e riutilizzati con `var()`.
 - **Override delle variabili di Bootstrap**: la classe `btn-brand` ridefinisce le variabili interne dei bottoni (`--bs-btn-bg`, `--bs-btn-hover-bg`, `--bs-btn-active-bg`…) invece di riscrivere il bottone da zero.
 - **Colori HSL**: il colore hover dei bottoni è lo stesso marrone con la luminosità abbassata dal 35% al 27%.
+- **Colore per categoria con una sola variabile**: card e modali dei lavori hanno la classe `colore-categoria` e la variabile `--colore-cat`, ridefinita per categoria con i selettori `.colore-categoria[data-categoria="..."]`. Copertina, badge e intestazione della modale la riutilizzano. Il bordo superiore è fatto con le classi Bootstrap `border-top border-4`: basta collegare `--bs-border-color` a `--colore-cat` e Bootstrap lo colora da solo.
+- **`color-mix()` e `linear-gradient`**: la copertina delle card è una sfumatura tra il colore della categoria e una sua versione schiarita, calcolata dal browser con `color-mix()`.
+- **Classi Bootstrap al posto del CSS**: nella sezione dei lavori bordi, ombre, angoli, tipografia e layout sono fatti con le classi di Bootstrap (`border-0`, `shadow-sm`, `overflow-hidden`, `ratio ratio-16x9`, `d-flex`, `display-4`, `fs-5`, `fw-bold`, `text-capitalize`, `text-body-secondary`). Le copertine mantengono le proporzioni 16:9, o 21:9 nella modale, con il componente `ratio`. In `style.css` resta solo ciò che Bootstrap non offre: i colori per categoria, la sfumatura e il sollevamento all'hover.
+- **Animazioni ridotte**: con `@media (prefers-reduced-motion: reduce)` le card non si muovono all'hover per chi ha disattivato le animazioni nel sistema operativo.
 - **Selettori di attributo**: le regole `[data-bs-theme="dark"]` correggono il tema scuro dove Bootstrap non si adatta da solo, come la sezione `bg-light` e le ombre delle card.
 - **Tipografia fluida**: il titolo della hero usa `clamp()` per crescere con lo schermo restando tra un minimo e un massimo.
 - **Transizioni e trasformazioni**: le card si sollevano all'hover con `transform: translateY(-4px)` e il cambio di tema sfuma con `transition`.
@@ -283,6 +391,8 @@ Il sito ha uno stile caldo ed essenziale, costruito su una palette di marroni.
 In alto si trova una navbar scura con il nome **Atelier** a sinistra e i link alle sezioni a destra, che resta fissa durante lo scroll. Sotto, la hero marrone occupa gran parte dello schermo, con il titolo e il pulsante **Inizia un progetto** al centro. Il pulsante ha lo stesso colore della hero e si scurisce al passaggio del mouse.
 
 La sezione dei servizi mostra sei card bianche con angoli arrotondati e una leggera ombra. Al passaggio del mouse ogni card si solleva e l'ombra diventa più marcata. Le card si dispongono su tre colonne su desktop, due su tablet e una su smartphone.
+
+La sezione dei lavori mostra in alto i bottoni dei filtri, con bordo marrone, che si riempiono di colore quando sono attivi. Ogni card ha una copertina sfumata nel colore della sua categoria, con un'icona al centro: marrone per i progetti residenziali, ocra per gli interni, terracotta per le ristrutturazioni e grigio ardesia per gli spazi commerciali. Lo stesso colore compare nel bordo superiore, nel badge e nell'intestazione della modale di dettaglio.
 
 Il form di contatto è centrato su uno sfondo grigio chiaro. Quando si clicca un campo, il bordo e l'alone diventano marroni. Il footer scuro chiude la pagina su tre colonne, con i link che si schiariscono al passaggio del mouse.
 
